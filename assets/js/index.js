@@ -65,16 +65,13 @@ class CarouselController {
     renderSlide (src, index) {
         const slideElem = document.createElement('div');
         slideElem.setAttribute('id', index);
-        // const image = new Image();
-        // image.src = src;
-        // slideElem.appendChild(image);
         slideElem.classList.add('slide');
         switch (index) {
             case this._carousel.currentIndex:
                 slideElem.classList.add('currentSlide');
-                const image = new Image();
-                image.src = src;
-                slideElem.appendChild(image);
+                // const image = new Image();
+                // image.src = src;
+                // slideElem.appendChild(image);
                 break;
             case Carousel.getPrevIndex(this.carousel.currentIndex, this.carousel.length):
                 slideElem.classList.add('prevSlide');
@@ -183,18 +180,6 @@ class CarouselController {
         return carouselWrapper;
 
     };
-
-    // addImage(index){
-    //     const slide = document.getElementById(index);
-    //     if (!slide.hasChildNodes()){
-    //         const image = new Image();
-    //         const src = this.carousel.slides;
-    //         image.src = src[index];
-    //         slide.appendChild(image);
-    //     }
-    //
-    // }
-
 }
 
 async function fetchJson (url, options) {
@@ -231,13 +216,14 @@ function reRenderCarousel () {
 
 function observer(src){
     const slides = document.querySelectorAll('.slide');
-    let observer =  new IntersectionObserver(entres =>{
-        entres.forEach(entry=>{
+    let observer =  new IntersectionObserver(entries =>{
+        entries.forEach(entry=>{
             if (!entry.target.hasChildNodes() && entry.isIntersecting){
                 const image = new Image();
                 const index = entry.target.id;
                 image.src = src[index];
                 entry.target.appendChild(image);
+                observer.unobserve(entry.target);
             }
         })
     }, {root: document.querySelector('.slidesContainer'),threshold:1});
