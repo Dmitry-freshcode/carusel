@@ -65,13 +65,16 @@ class CarouselController {
     renderSlide (src, index) {
         const slideElem = document.createElement('div');
         slideElem.setAttribute('id', index);
-        const image = new Image();
-        image.src = src;
-        slideElem.appendChild(image);
+        // const image = new Image();
+        // image.src = src;
+        // slideElem.appendChild(image);
         slideElem.classList.add('slide');
         switch (index) {
             case this._carousel.currentIndex:
                 slideElem.classList.add('currentSlide');
+                const image = new Image();
+                image.src = src;
+                slideElem.appendChild(image);
                 break;
             case Carousel.getPrevIndex(this.carousel.currentIndex, this.carousel.length):
                 slideElem.classList.add('prevSlide');
@@ -105,6 +108,7 @@ class CarouselController {
         return container;
     }
 
+
     renderButton () {
         const button = document.createElement('div');
         button.classList.add('button');
@@ -116,7 +120,9 @@ class CarouselController {
 
     goNext = () => {
 
+
         const currentIndex = this._carousel.currentIndex;
+
         const prevIndex = Carousel.getPrevIndex(currentIndex, this._carousel.length);
         const nextIndex = Carousel.getNextIndex(currentIndex, this._carousel.length);
         const newNextIndex = Carousel.getNextIndex(nextIndex, this._carousel.length);
@@ -130,10 +136,12 @@ class CarouselController {
         currentSlide.classList.replace('currentSlide', 'prevSlide');
         nextSlide.classList.replace('nextSlide', 'currentSlide');
         newNext.classList.add('nextSlide');
+        // this.addImage(nextIndex);
         this._carousel.goNext();
     };
 
     goPrev = () => {
+
 
         const currentIndex = this._carousel.currentIndex;
         const prevIndex = Carousel.getPrevIndex(currentIndex, this._carousel.length);
@@ -149,6 +157,9 @@ class CarouselController {
         currentSlide.classList.replace('currentSlide', 'nextSlide');
         prevSlide.classList.replace('prevSlide', 'currentSlide');
         newPrev.classList.add('prevSlide');
+        // this.addImage(prevIndex);
+        const slides = document.querySelectorAll('.slide');
+        console.log(slides);
         this._carousel.goPrev();
 
     };
@@ -171,14 +182,25 @@ class CarouselController {
 
         return carouselWrapper;
 
-    }
+    };
+
+    // addImage(index){
+    //     const slide = document.getElementById(index);
+    //     if (!slide.hasChildNodes()){
+    //         const image = new Image();
+    //         const src = this.carousel.slides;
+    //         image.src = src[index];
+    //         slide.appendChild(image);
+    //     }
+    //
+    // }
 
 }
 
 async function fetchJson (url, options) {
 
     const response = await fetch(url, options);
-    return await response.json();
+    return response.json();
 
 }
 
@@ -193,14 +215,34 @@ carouselController.onstart = () => {
 
 carouselController.onload = () => {
     reRenderCarousel();
+    observer(carouselController.carousel.slides);
 };
 
 carouselController.onerror = () => {
     reRenderCarousel();
 };
 
+
 function reRenderCarousel () {
     const newCarousel = carouselController.render();
     newCarousel.setAttribute('id', CAROUSEL_ID);
     document.body.replaceChild(newCarousel, document.getElementById(CAROUSEL_ID));
 }
+
+function observer(src){
+    const slides = document.querySelectorAll('.slide');
+    let observer =  new IntersectionObserver(entres =>{
+        entres.forEach(entry=>{
+            if (!entry.target.hasChildNodes() && entry.isIntersecting){
+                const image = new Image();
+                const index = entry.target.id;
+                image.src = src[index];
+                entry.target.appendChild(image);
+            }
+        })
+    }, {root: document.querySelector('.slidesContainer'),threshold:1});
+
+    slides.forEach(slide => observer.observe(slide));
+}
+
+
